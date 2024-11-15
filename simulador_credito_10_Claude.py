@@ -184,14 +184,12 @@ aval = monto * detalles["aval_porcentaje"]
 seguro_vida = calcular_seguro_vida(plazo, detalles.get("seguro_vida_base", 0)) if tipo_credito == "LoansiFlex" else 0
 total_financiar = monto + aval + total_costos_asociados + seguro_vida
 
-    # Cálculo de cuota y mostrar resultados
+# Cálculo de cuota y mostrar resultados
 if tipo_credito == "LoansiFlex":
     cuota = (total_financiar * (detalles["tasa_mensual"] / 100)) / (1 - (1 + detalles["tasa_mensual"] / 100) ** -plazo)
 else:
-    # Ajuste para Microflex usando tasa mensual convertida a semanal
-    tasa_mensual = detalles["tasa_mensual"] / 100
-    tasa_semanal = ((1 + tasa_mensual) ** 0.25) - 1
-    cuota = round((total_financiar * tasa_semanal) / (1 - (1 + tasa_semanal) ** -plazo))
+    tasa_semanal = (1 + detalles["tasa_mensual"] / 100) ** (1/4) - 1
+    cuota = (total_financiar * tasa_semanal) / (1 - (1 + tasa_semanal) ** -plazo)
 
 st.markdown(f"""
 <div class="result-box">
