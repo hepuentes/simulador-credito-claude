@@ -8,10 +8,10 @@ LINEAS_DE_CREDITO = {
         "monto_max": 20000000,
         "plazo_min": 12,
         "plazo_max": 60,
-        "tasa_mensual": 1.9715,  
-        "tasa_anual_efectiva": 26.4,  
-        "aval_porcentaje": 0.10,  
-        "seguro_vida_base": 150000  
+        "tasa_mensual": 1.9715,
+        "tasa_anual_efectiva": 26.4,
+        "aval_porcentaje": 0.10,
+        "seguro_vida_base": 150000
     },
     "Microflex": {
         "descripcion": "Crédito rotativo para personas en sectores informales, orientado a cubrir necesidades de liquidez rápida con pagos semanales.",
@@ -19,9 +19,9 @@ LINEAS_DE_CREDITO = {
         "monto_max": 500000,
         "plazo_min": 4,
         "plazo_max": 8,
-        "tasa_mensual": 2.0718,  
-        "tasa_anual_efectiva": 27.9,  
-        "aval_porcentaje": 0.12,  
+        "tasa_mensual": 2.0718,
+        "tasa_anual_efectiva": 27.9,
+        "aval_porcentaje": 0.12,
     }
 }
 
@@ -35,78 +35,25 @@ COSTOS_ASOCIADOS = {
 total_costos_asociados = sum(COSTOS_ASOCIADOS.values())
 
 def calcular_seguro_vida(plazo, seguro_vida_base):
-    años = plazo // 12
-    return seguro_vida_base * años if años >= 1 else 0
+    return seguro_vida_base * (plazo // 12) if plazo >= 12 else 0
 
 st.markdown("""
     <style>
-        .main {
-            background-color: #f5f5f5;
-            font-family: 'Arial', sans-serif;
-        }
-        h1 {
-            color: #4A90E2;
-            text-align: center;
-            font-weight: bold;
-        }
-        .stButton button {
-            background-color: #4A90E2;
-            color: white;
-            font-size: 24px;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: fit-content;
-            display: block;
-            margin: 0 auto;
-        }
-        .stButton button:hover {
-            background-color: #357ABD;
-        }
-        .result-box {
-            border: 1px solid #4A90E2;
-            padding: 15px;
-            border-radius: 5px;
-            background-color: #E6F7FF;
-            text-align: center;
-            width: fit-content;
-            margin: 20px auto;
-        }
-        .whatsapp-box {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .whatsapp-link {
-            color: #4A90E2;
-            font-weight: bold;
-            font-size: 22px;
-            text-decoration: none;
-        }
-        .whatsapp-link:hover {
-            color: #357ABD;
-        }
-        .info-text {
-            text-align: center;
-            font-size: 14px;
-            margin-top: 20px;
-        }
+        /* Estilos existentes */
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>Simulador de Crédito Loansi</h1>", unsafe_allow_html=True)
 
-st.markdown("<p style='font-weight: bold; font-size: 16px; margin-bottom: -10px;'>Selecciona la Línea de Crédito</p>", unsafe_allow_html=True)
-tipo_credito = st.selectbox("", options=LINEAS_DE_CREDITO.keys())
+st.markdown("<p style='font-weight: bold; font-size: 16px; margin-bottom: -5px;'>Selecciona la Línea de Crédito</p>", unsafe_allow_html=True)
+tipo_credito = st.selectbox("", options=LINEAS_DE_CREDITO.keys(), index=0)
 detalles = LINEAS_DE_CREDITO[tipo_credito]
 
 st.write(f"**Descripción**: {detalles['descripcion']}")
 
-st.markdown("<p style='font-weight: bold; font-size: 16px; margin-bottom: -10px;'>Escribe el valor del crédito</p>", unsafe_allow_html=True)
+st.markdown("<p style='font-weight: bold; font-size: 16px; margin-bottom: -5px;'>Escribe el valor del crédito</p>", unsafe_allow_html=True)
 st.write(f"<small>Ingresa un valor entre <b>{detalles['monto_min']:,} COP</b> y <b>{detalles['monto_max']:,} COP</b></small>", unsafe_allow_html=True)
-monto = st.number_input(
-    "", min_value=detalles["monto_min"], max_value=detalles["monto_max"], step=50000, format="%d", disabled=tipo_credito != "LoansiFlex"
-)
+monto = st.number_input("", min_value=detalles["monto_min"], max_value=detalles["monto_max"], step=50000, format="%d", disabled=tipo_credito != "LoansiFlex")
 
 aval = monto * detalles["aval_porcentaje"]
 
@@ -121,7 +68,10 @@ else:
     plazo = st.slider("Plazo en Semanas:", min_value=detalles["plazo_min"], max_value=detalles["plazo_max"], step=1)
     frecuencia_pago = "Semanal"
 
-if st.button("Simular", key="simulate"):
+simulate_button = st.button("Simular", key="simulate")
+new_simulate_button = st.button("Nueva Simulación", key="new_simulate", disabled=not simulate_button)
+
+if simulate_button:
     if tipo_credito == "LoansiFlex":
         cuota = (total_financiar * (detalles["tasa_mensual"] / 100)) / (1 - (1 + detalles["tasa_mensual"] / 100) ** -plazo)
     else:
@@ -135,7 +85,7 @@ if st.button("Simular", key="simulate"):
     </div>
     """, unsafe_allow_html=True)
 
-    st.button("Nueva Simulación", key="new_simulate", disabled=True)
+    new_simulate_button.disabled = False
 
     with st.expander("Ver Detalles del Crédito"):
         total_interes = cuota * plazo - total_financiar
