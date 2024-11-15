@@ -1,10 +1,6 @@
 import streamlit as st
 
-# Función para formatear números con separadores de miles
-def format_number(number):
-    return "{:,.0f}".format(number).replace(",", ".")
-
-# Datos para cada línea de crédito (resto del código igual)
+# Datos para cada línea de crédito
 LINEAS_DE_CREDITO = {
     "LoansiFlex": {
         "descripcion": "Crédito de libre inversión para empleados, independientes, personas naturales y pensionados.",
@@ -38,11 +34,13 @@ COSTOS_ASOCIADOS = {
 
 total_costos_asociados = sum(COSTOS_ASOCIADOS.values())
 
+def format_number(number):
+    return "{:,.0f}".format(number).replace(",", ".")
+
 def calcular_seguro_vida(plazo, seguro_vida_base):
     años = plazo // 12
     return seguro_vida_base * años if años >= 1 else 0
 
-# Estilos (mismo código CSS que antes)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -74,29 +72,6 @@ st.markdown("""
             color: #1a202c;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        /* Asegurar contraste en modo oscuro */
-        @media (prefers-color-scheme: dark) {
-            .stSelectbox > div > div {
-                background-color: #2d3748;
-                color: #ffffff;
-                border-color: #4a5568;
-            }
-        }
-        
-        .number-input label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 0.3rem;
-        }
-        
-        .number-input input {
-            font-size: 1.1rem;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 0.5rem;
-            background-color: #f8f9fa;
-        }
         
         .result-box {
             background-color: #ffffff;
@@ -115,50 +90,10 @@ st.markdown("""
             margin: 0.5rem 0;
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
-
-        /* Asegurar contraste en modo oscuro */
-        @media (prefers-color-scheme: dark) {
-            .result-box {
-                background-color: #2d3748;
-                border-color: #4a5568;
-            }
-            .result-amount {
-                color: #60a5fa;
-            }
-        }
-        
-        .result-period {
-            color: #5f6368;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        
-        .expander-content {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 0.5rem;
-        }
-        
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            margin: 0.5rem 0;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .whatsapp-section {
-            text-align: center;
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #f8f9fa;
-            border-radius: 12px;
-        }
         
         .whatsapp-link {
             display: inline-block;
-            background-color: #FADD01;
+            background-color: #22c55e;
             color: white;
             padding: 1rem 2rem;
             border-radius: 8px;
@@ -168,7 +103,6 @@ st.markdown("""
             margin-top: 1rem;
             transition: all 0.3s ease;
             box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .whatsapp-link:hover {
@@ -176,29 +110,34 @@ st.markdown("""
             transform: translateY(-1px);
             box-shadow: 0 4px 6px rgba(34, 197, 94, 0.4);
         }
-
-        /* Asegurar contraste en modo oscuro */
-        @media (prefers-color-scheme: dark) {
-            .whatsapp-link {
-                background-color: #22c55e;
-                color: white;
-            }
-            .whatsapp-link:hover {
-                background-color: #16a34a;
-            }
-        }
         
         .slider-label {
             font-weight: 600;
             color: #2c3e50;
             margin-bottom: 0.5rem;
         }
+
+        .input-currency {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 10px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            padding-left: 25px !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>Simulador de Crédito Loansi</h1>", unsafe_allow_html=True)
 
-# Selección de línea de crédito con estilo mejorado
 st.markdown("<p style='font-weight: 600; font-size: 1rem; margin-bottom: 0.2rem;'>Selecciona la Línea de Crédito</p>", unsafe_allow_html=True)
 tipo_credito = st.selectbox("", options=LINEAS_DE_CREDITO.keys(), index=0)
 detalles = LINEAS_DE_CREDITO[tipo_credito]
@@ -209,13 +148,28 @@ st.markdown(f"<p style='color: #5f6368; font-size: 0.9rem; margin-top: 0.5rem;'>
 st.markdown("<p style='font-weight: 600; font-size: 1rem; margin: 1rem 0 0.2rem;'>Escribe el valor del crédito</p>", unsafe_allow_html=True)
 st.markdown(f"<p style='color: #5f6368; font-size: 0.8rem; margin-bottom: 0.2rem;'>Ingresa un valor entre <b>$ {format_number(detalles['monto_min'])}</b> y <b>$ {format_number(detalles['monto_max'])}</b> COP</p>", unsafe_allow_html=True)
 
-monto = st.number_input("", 
-                       min_value=detalles["monto_min"],
-                       max_value=detalles["monto_max"],
-                       step=1000,
-                       format="%d")
+# Inicializar el estado si no existe
+if 'monto_str' not in st.session_state:
+    st.session_state.monto_str = format_number(detalles['monto_min'])
 
-# Slider de plazo con estilo mejorado
+col1, col2 = st.columns([1,6])
+with col1:
+    st.markdown("<div style='text-align: right; padding-top: 5px; font-size: 1rem; font-weight: 500;'>$</div>", unsafe_allow_html=True)
+
+with col2:
+    monto_str = st.text_input("", value=st.session_state.monto_str, key='monto_input')
+    try:
+        monto = int(monto_str.replace(".", "").replace(",", ""))
+        if monto < detalles["monto_min"]:
+            st.warning(f"El valor mínimo es $ {format_number(detalles['monto_min'])}")
+            monto = detalles["monto_min"]
+        elif monto > detalles["monto_max"]:
+            st.warning(f"El valor máximo es $ {format_number(detalles['monto_max'])}")
+            monto = detalles["monto_max"]
+    except ValueError:
+        st.warning("Por favor ingresa un valor válido")
+        monto = detalles["monto_min"]
+
 if tipo_credito == "LoansiFlex":
     st.markdown("<p class='slider-label'>Plazo en Meses</p>", unsafe_allow_html=True)
     plazo = st.slider("", min_value=detalles["plazo_min"], max_value=detalles["plazo_max"], step=12)
@@ -230,12 +184,14 @@ aval = monto * detalles["aval_porcentaje"]
 seguro_vida = calcular_seguro_vida(plazo, detalles.get("seguro_vida_base", 0)) if tipo_credito == "LoansiFlex" else 0
 total_financiar = monto + aval + total_costos_asociados + seguro_vida
 
-# Cálculo de cuota y mostrar resultados
+    # Cálculo de cuota y mostrar resultados
 if tipo_credito == "LoansiFlex":
     cuota = (total_financiar * (detalles["tasa_mensual"] / 100)) / (1 - (1 + detalles["tasa_mensual"] / 100) ** -plazo)
 else:
-    tasa_semanal = (1 + detalles["tasa_mensual"] / 100) ** (1/4) - 1
-    cuota = (total_financiar * tasa_semanal) / (1 - (1 + tasa_semanal) ** -plazo)
+    # Ajuste para Microflex usando tasa mensual convertida a semanal
+    tasa_mensual = detalles["tasa_mensual"] / 100
+    tasa_semanal = ((1 + tasa_mensual) ** 0.25) - 1
+    cuota = round((total_financiar * tasa_semanal) / (1 - (1 + tasa_semanal) ** -plazo))
 
 st.markdown(f"""
 <div class="result-box">
@@ -244,7 +200,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Detalles del crédito con orden mejorado
 with st.expander("Ver Detalles del Crédito"):
     total_interes = cuota * plazo - total_financiar
     total_pagar = cuota * plazo
@@ -275,7 +230,6 @@ with st.expander("Ver Detalles del Crédito"):
         </div>
         """, unsafe_allow_html=True)
 
-# Sección de WhatsApp mejorada
 st.markdown("""
 <div class="whatsapp-section">
     <h3 style='font-size: 1.3rem; font-weight: 600; color: #2c3e50;'>¿Interesado en solicitar este crédito?</h3>
@@ -284,4 +238,23 @@ st.markdown("""
         Hacer solicitud vía WhatsApp
     </a>
 </div>
+""", unsafe_allow_html=True)
+
+# Agregar JavaScript para formato automático
+st.markdown("""
+<script>
+    function formatNumber(num) {
+        return num.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[type="text"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                const value = this.value.replace(/\D/g, "");
+                this.value = formatNumber(value);
+            });
+        });
+    });
+</script>
 """, unsafe_allow_html=True)
