@@ -1,10 +1,10 @@
 import streamlit as st
-import locale
 
-# Configurar el formato de moneda
-locale.setlocale(locale.LC_ALL, 'es_CO.UTF-8')
+# Función para formatear números con separadores de miles
+def format_number(number):
+    return "{:,.0f}".format(number).replace(",", ".")
 
-# Datos para cada línea de crédito
+# Datos para cada línea de crédito (resto del código igual)
 LINEAS_DE_CREDITO = {
     "LoansiFlex": {
         "descripcion": "Crédito de libre inversión para empleados, independientes, personas naturales y pensionados.",
@@ -42,6 +42,7 @@ def calcular_seguro_vida(plazo, seguro_vida_base):
     años = plazo // 12
     return seguro_vida_base * años if años >= 1 else 0
 
+# Estilos (mismo código CSS que antes)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -165,7 +166,7 @@ st.markdown(f"<p style='color: #5f6368; font-size: 0.9rem; margin-top: 0.5rem;'>
 
 # Campo de entrada del monto con formato automático
 st.markdown("<p style='font-weight: 600; font-size: 1rem; margin: 1rem 0 0.2rem;'>Escribe el valor del crédito</p>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #5f6368; font-size: 0.8rem; margin-bottom: 0.2rem;'>Ingresa un valor entre <b>{locale.format_string('%d', detalles['monto_min'], grouping=True)}</b> y <b>{locale.format_string('%d', detalles['monto_max'], grouping=True)}</b> COP</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #5f6368; font-size: 0.8rem; margin-bottom: 0.2rem;'>Ingresa un valor entre <b>$ {format_number(detalles['monto_min'])}</b> y <b>$ {format_number(detalles['monto_max'])}</b> COP</p>", unsafe_allow_html=True)
 
 monto = st.number_input("", 
                        min_value=detalles["monto_min"],
@@ -198,7 +199,7 @@ else:
 st.markdown(f"""
 <div class="result-box">
     <p style='margin-bottom: 0.5rem;'>Pagarás {plazo} cuotas por un valor aproximado de:</p>
-    <div class="result-amount">$ {locale.format_string('%d', cuota, grouping=True)} {frecuencia_pago}</div>
+    <div class="result-amount">$ {format_number(cuota)} {frecuencia_pago}</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -208,21 +209,21 @@ with st.expander("Ver Detalles del Crédito"):
     total_pagar = cuota * plazo
     
     detalles_orden = [
-        ("Monto Solicitado", f"$ {locale.format_string('%d', monto, grouping=True)} COP"),
+        ("Monto Solicitado", f"$ {format_number(monto)} COP"),
         ("Plazo", f"{plazo} {'meses' if tipo_credito == 'LoansiFlex' else 'semanas'}"),
         ("Frecuencia de Pago", frecuencia_pago),
         ("Tasa de Interés Mensual", f"{detalles['tasa_mensual']}%"),
         ("Tasa Efectiva Anual (E.A.)", f"{detalles['tasa_anual_efectiva']}%"),
-        ("Costo del Aval", f"$ {locale.format_string('%d', aval, grouping=True)} COP"),
-        ("Costos Asociados", f"$ {locale.format_string('%d', total_costos_asociados, grouping=True)} COP"),
+        ("Costo del Aval", f"$ {format_number(aval)} COP"),
+        ("Costos Asociados", f"$ {format_number(total_costos_asociados)} COP"),
     ]
     
     if tipo_credito == "LoansiFlex":
-        detalles_orden.append(("Seguro de Vida", f"$ {locale.format_string('%d', seguro_vida, grouping=True)} COP"))
+        detalles_orden.append(("Seguro de Vida", f"$ {format_number(seguro_vida)} COP"))
     
     detalles_orden.extend([
-        ("Total Intereses", f"$ {locale.format_string('%d', total_interes, grouping=True)} COP"),
-        ("Total a Pagar", f"$ {locale.format_string('%d', total_pagar, grouping=True)} COP")
+        ("Total Intereses", f"$ {format_number(total_interes)} COP"),
+        ("Total a Pagar", f"$ {format_number(total_pagar)} COP")
     ])
     
     for titulo, valor in detalles_orden:
