@@ -278,7 +278,7 @@ with st.expander("Ver Detalles del Crédito"):
 # Sección de WhatsApp mejorada
 st.markdown("""
 <div class="whatsapp-section">
-    <h3 style='font-size: 1.3rem; font-weight: 600; color: #2c3e50;'>¿Interesado en solicitar este crédito?</h3>
+    <h3 style='font-size: 1.3rem; font-weight: 600; color: #F6FE0A;'>¿Interesado en solicitar este crédito?</h3>
     <p style='color: #5f6368; margin: 0.5rem 0;'>Para más información, comuníquese con nosotros por WhatsApp</p>
     <a href='https://wa.me/XXXXXXXXXXX' target='_blank' class="whatsapp-link">
         Hacer solicitud vía WhatsApp
